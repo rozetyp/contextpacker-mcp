@@ -27,31 +27,26 @@ Both tools support public repos out of the box. For private repos, add a GitHub 
 
 ## Quick start
 
-### Option A — `uvx` (no install, recommended)
+> **Note:** The package is not yet on PyPI. Use Option B (run from source) for now.
+> PyPI / `uvx` support is coming soon.
 
-If you have [`uv`](https://docs.astral.sh/uv/) installed:
+### Option A — `uvx` *(coming soon)*
 
 ```bash
 uvx contextpacker-mcp
 ```
 
-`uvx` downloads and runs the package in an isolated environment automatically. No pip, no virtualenv.
-
-### Option B — `pip install`
-
-```bash
-pip install contextpacker-mcp
-contextpacker-mcp   # verify it starts
-```
-
-### Option C — run from source
+### Option B — run from source *(works now)*
 
 ```bash
 git clone https://github.com/rozetyp/contextpacker-mcp
 cd contextpacker-mcp
-pip install .
-python server.py
+python -m venv .venv && source .venv/bin/activate
+pip install -e .
+python server.py  # verify it starts
 ```
+
+Then point your MCP client at the `server.py` file (see [Configure your MCP client](#configure-your-mcp-client)).
 
 ---
 
@@ -65,7 +60,8 @@ For running without an API key, see [Self-hosting](#self-hosting).
 
 ## Configure your MCP client
 
-Replace `cp_live_your_key_here` with your actual API key in the snippets below.
+First clone the repo and note the full path to `server.py` (e.g. `/Users/you/contextpacker-mcp/server.py`).
+Replace that path and `cp_live_your_key_here` with your actual values in the snippets below.
 
 ### Claude Desktop
 
@@ -75,8 +71,8 @@ Edit `~/Library/Application Support/Claude/claude_desktop_config.json`:
 {
   "mcpServers": {
     "contextpacker": {
-      "command": "uvx",
-      "args": ["contextpacker-mcp"],
+      "command": "python3",
+      "args": ["/path/to/contextpacker-mcp/server.py"],
       "env": {
         "CONTEXTPACKER_API_KEY": "cp_live_your_key_here"
       }
@@ -93,8 +89,8 @@ Create or edit `~/.cursor/mcp.json` (global) or `.cursor/mcp.json` in your proje
 {
   "mcpServers": {
     "contextpacker": {
-      "command": "uvx",
-      "args": ["contextpacker-mcp"],
+      "command": "python3",
+      "args": ["/path/to/contextpacker-mcp/server.py"],
       "env": {
         "CONTEXTPACKER_API_KEY": "cp_live_your_key_here"
       }
@@ -111,8 +107,8 @@ Edit `~/.codeium/windsurf/mcp_config.json`:
 {
   "mcpServers": {
     "contextpacker": {
-      "command": "uvx",
-      "args": ["contextpacker-mcp"],
+      "command": "python3",
+      "args": ["/path/to/contextpacker-mcp/server.py"],
       "env": {
         "CONTEXTPACKER_API_KEY": "cp_live_your_key_here"
       }
@@ -130,8 +126,8 @@ Add to `.vscode/mcp.json` in your project:
   "servers": {
     "contextpacker": {
       "type": "stdio",
-      "command": "uvx",
-      "args": ["contextpacker-mcp"],
+      "command": "python3",
+      "args": ["/path/to/contextpacker-mcp/server.py"],
       "env": {
         "CONTEXTPACKER_API_KEY": "cp_live_your_key_here"
       }
@@ -139,9 +135,6 @@ Add to `.vscode/mcp.json` in your project:
   }
 }
 ```
-
-> **Not using `uvx`?** Replace `"command": "uvx", "args": ["contextpacker-mcp"]` with
-> `"command": "python", "args": ["/absolute/path/to/server.py"]`.
 
 ---
 
@@ -175,6 +168,7 @@ Run the full ContextPacker server locally — no API key needed:
 ```bash
 git clone https://github.com/rozetyp/contextpacker
 cd contextpacker
+python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 export LLM_API_KEY=your_gemini_or_openai_key
 uvicorn context_packer.main:app --port 8000
@@ -215,14 +209,14 @@ First call for a repo: 3–10s (clone + index). Subsequent calls: ~1s.
 ```bash
 git clone https://github.com/rozetyp/contextpacker-mcp
 cd contextpacker-mcp
-python -m venv .venv && source .venv/bin/activate
+python3 -m venv .venv && source .venv/bin/activate
 pip install -e .
 ```
 
 Test with the MCP Inspector:
 
 ```bash
-npx @modelcontextprotocol/inspector python server.py
+npx @modelcontextprotocol/inspector python3 server.py
 # Opens http://localhost:6274 — test tools directly in your browser
 ```
 
