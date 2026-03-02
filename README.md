@@ -9,6 +9,9 @@ Give any MCP-compatible AI agent instant access to **any GitHub repository** —
 
 Works with Claude Desktop, Cursor, Windsurf, VS Code (GitHub Copilot), and any other MCP client.
 
+> **Hosted API: [contextpacker.com](https://contextpacker.com)** — 100 free requests, no card required.
+> This is early software. If something doesn't work as expected, please [open an issue](https://github.com/rozetyp/contextpacker-mcp/issues) — feedback is very welcome.
+
 ---
 
 ## Tools
@@ -222,6 +225,17 @@ Test with the MCP Inspector:
 npx @modelcontextprotocol/inspector python server.py
 # Opens http://localhost:6274 — test tools directly in your browser
 ```
+
+---
+
+## Feedback
+
+This is early software under active development. If you:
+- Can't get it working → [open an issue](https://github.com/rozetyp/contextpacker-mcp/issues)
+- Get bad context results for a repo → let us know with a minimal example
+- Want to request a new MCP client config or feature → open an issue
+
+A ⭐ on GitHub helps more developers find this.
 
 ---
 
