@@ -200,7 +200,8 @@ def get_skeleton(repo_url: str) -> str:
 # Entry point
 # =============================================================================
 
-if __name__ == "__main__":
+def main() -> None:
+    """Entry point for `contextpacker-mcp` console script and `uvx contextpacker-mcp`."""
     if not API_KEY and API_URL == "https://contextpacker.com":
         print(
             "Warning: CONTEXTPACKER_API_KEY not set.\n"
@@ -209,3 +210,7 @@ if __name__ == "__main__":
             file=sys.stderr,
         )
     mcp.run()
+
+
+if __name__ == "__main__":
+    main()

@@ -1,56 +1,79 @@
 # ContextPacker MCP Server
 
-Give any MCP-compatible AI agent (Claude Desktop, Cursor, Windsurf, etc.) instant access to any GitHub repository.
+Give any MCP-compatible AI agent instant access to **any GitHub repository** — without pasting files manually.
 
-**One line, any repo, any question:**
 ```
-get_context("https://github.com/pallets/flask", "How does routing work?")
+"How does authentication work in expressjs/express?"
+→ agent fetches exactly the relevant files, packed within your token budget
 ```
 
-Returns the most relevant files packed into a single Markdown block — ready to use as context.
+Works with Claude Desktop, Cursor, Windsurf, VS Code (GitHub Copilot), and any other MCP client.
 
 ---
 
 ## Tools
 
-| Tool | What it does |
+| Tool | Description |
 |------|-------------|
-| `get_context(repo_url, query, max_tokens?)` | Select + pack the most relevant files for a question |
-| `get_skeleton(repo_url)` | Return the full annotated file tree (repo map) |
+| `get_context(repo_url, query, max_tokens?)` | Selects and packs the most relevant files for a question |
+| `get_skeleton(repo_url)` | Returns the full annotated file tree (repo map) without file contents |
+
+Both tools support public repos out of the box. For private repos, add a GitHub PAT (see below).
 
 ---
 
-## Setup
+## Quick start
 
-### 1. Install
+### Option A — `uvx` (no install, recommended)
+
+If you have [`uv`](https://docs.astral.sh/uv/) installed:
 
 ```bash
-pip install mcp httpx
+uvx contextpacker-mcp
 ```
 
-### 2. Get an API key (or self-host)
+`uvx` downloads and runs the package in an isolated environment automatically. No pip, no virtualenv.
 
-**Option A — Hosted (recommended):** Get a free key at [contextpacker.com](https://contextpacker.com). 100 free requests, no card required.
+### Option B — `pip install`
 
-**Option B — Self-hosted:** Run the ContextPacker server locally and point the MCP server at it:
 ```bash
-# In contextpacker repo:
-uvicorn context_packer.main:app --port 8000
-
-# Then set:
-export CONTEXTPACKER_API_URL=http://localhost:8000
+pip install contextpacker-mcp
+contextpacker-mcp   # verify it starts
 ```
 
-### 3. Configure your MCP client
+### Option C — run from source
 
-**Claude Desktop** — add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
+```bash
+git clone https://github.com/contextpacker/contextpacker-mcp
+cd contextpacker-mcp
+pip install .
+python server.py
+```
+
+---
+
+## Get an API key
+
+Get a free key (100 requests, no card required) at **[contextpacker.com](https://contextpacker.com)**.
+
+For running without an API key, see [Self-hosting](#self-hosting).
+
+---
+
+## Configure your MCP client
+
+Replace `cp_live_your_key_here` with your actual API key in the snippets below.
+
+### Claude Desktop
+
+Edit `~/Library/Application Support/Claude/claude_desktop_config.json`:
 
 ```json
 {
   "mcpServers": {
     "contextpacker": {
-      "command": "python",
-      "args": ["/path/to/contextpacker-mcp/server.py"],
+      "command": "uvx",
+      "args": ["contextpacker-mcp"],
       "env": {
         "CONTEXTPACKER_API_KEY": "cp_live_your_key_here"
       }
@@ -59,14 +82,16 @@ export CONTEXTPACKER_API_URL=http://localhost:8000
 }
 ```
 
-**Cursor** — add to `.cursor/mcp.json` in your project:
+### Cursor
+
+Create or edit `~/.cursor/mcp.json` (global) or `.cursor/mcp.json` in your project:
 
 ```json
 {
   "mcpServers": {
     "contextpacker": {
-      "command": "python",
-      "args": ["/path/to/contextpacker-mcp/server.py"],
+      "command": "uvx",
+      "args": ["contextpacker-mcp"],
       "env": {
         "CONTEXTPACKER_API_KEY": "cp_live_your_key_here"
       }
@@ -75,11 +100,56 @@ export CONTEXTPACKER_API_URL=http://localhost:8000
 }
 ```
 
-**Private repos** — add your GitHub PAT to the env block:
+### Windsurf
+
+Edit `~/.codeium/windsurf/mcp_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "contextpacker": {
+      "command": "uvx",
+      "args": ["contextpacker-mcp"],
+      "env": {
+        "CONTEXTPACKER_API_KEY": "cp_live_your_key_here"
+      }
+    }
+  }
+}
+```
+
+### VS Code (GitHub Copilot)
+
+Add to `.vscode/mcp.json` in your project:
+
+```json
+{
+  "servers": {
+    "contextpacker": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": ["contextpacker-mcp"],
+      "env": {
+        "CONTEXTPACKER_API_KEY": "cp_live_your_key_here"
+      }
+    }
+  }
+}
+```
+
+> **Not using `uvx`?** Replace `"command": "uvx", "args": ["contextpacker-mcp"]` with
+> `"command": "python", "args": ["/absolute/path/to/server.py"]`.
+
+---
+
+## Private repositories
+
+Add your GitHub Personal Access Token (needs `repo` scope) to the `env` block:
+
 ```json
 "env": {
   "CONTEXTPACKER_API_KEY": "cp_live_your_key_here",
-  "GITHUB_PAT": "ghp_your_pat_here"
+  "GITHUB_PAT": "ghp_your_token_here"
 }
 ```
 
@@ -87,49 +157,80 @@ export CONTEXTPACKER_API_URL=http://localhost:8000
 
 ## Environment variables
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `CONTEXTPACKER_API_KEY` | Yes (hosted) | API key from contextpacker.com |
-| `CONTEXTPACKER_API_URL` | No | Override API URL for self-hosting (default: `https://contextpacker.com`) |
-| `GITHUB_PAT` | No | GitHub PAT for private repo access |
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `CONTEXTPACKER_API_KEY` | Yes (hosted) | — | API key from contextpacker.com |
+| `CONTEXTPACKER_API_URL` | No | `https://contextpacker.com` | Override for self-hosted instances |
+| `GITHUB_PAT` | No | — | GitHub PAT for private repo access (`repo` scope) |
 
 ---
 
-## Examples
+## Self-hosting
 
-Once configured, just ask your agent naturally:
+Run the full ContextPacker server locally — no API key needed:
 
-> "How does authentication work in this repo?"
-> *→ agent calls `get_context("https://github.com/...", "authentication")`*
+```bash
+git clone https://github.com/contextpacker/contextpacker
+cd contextpacker
+pip install -r requirements.txt
+export LLM_API_KEY=your_gemini_or_openai_key
+uvicorn context_packer.main:app --port 8000
+```
 
-> "Give me a map of the codebase before I start"
-> *→ agent calls `get_skeleton("https://github.com/...")`*
+Then in your MCP client config, omit `CONTEXTPACKER_API_KEY` and add:
 
-> "How does rate limiting work in our internal API?"
-> *→ agent calls `get_context` with your private repo URL + GITHUB_PAT*
+```json
+"env": {
+  "CONTEXTPACKER_API_URL": "http://localhost:8000"
+}
+```
 
 ---
 
 ## How it works
 
 ```
-get_context(repo_url, query)
+get_context(repo_url, "how does routing work?")
     ↓
-Clone repo (shallow, depth=1) or use warm cache
+Shallow clone (depth=1) — or warm cache hit (~1s)
     ↓
-Build annotated file tree with AST-extracted symbols
+Build file tree, extract AST symbols per file
     ↓
-LLM selects most relevant files for your query
+LLM ranks and selects the most relevant files
     ↓
-Pack files into Markdown within your token budget
+Pack selected files into Markdown within your token budget
     ↓
 Return context with per-file reason comments
 ```
 
-First call for a repo takes 3–8s (clone + index). Subsequent calls are cached: ~1s.
+First call for a repo: 3–10s (clone + index). Subsequent calls: ~1s.
+
+---
+
+## Development
+
+```bash
+git clone https://github.com/contextpacker/contextpacker-mcp
+cd contextpacker-mcp
+python -m venv .venv && source .venv/bin/activate
+pip install -e .
+```
+
+Test with the MCP Inspector:
+
+```bash
+npx @modelcontextprotocol/inspector python server.py
+# Opens http://localhost:6274 — test tools directly in your browser
+```
+
+---
+
+## Contributing
+
+Bug reports and pull requests are welcome. Please open an issue first for larger changes.
 
 ---
 
 ## License
 
-MIT
+MIT — see [LICENSE](LICENSE).
