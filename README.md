@@ -44,7 +44,7 @@ contextpacker-mcp   # verify it starts
 ### Option C — run from source
 
 ```bash
-git clone https://github.com/contextpacker/contextpacker-mcp
+git clone https://github.com/rozetyp/contextpacker-mcp
 cd contextpacker-mcp
 pip install .
 python server.py
@@ -170,7 +170,7 @@ Add your GitHub Personal Access Token (needs `repo` scope) to the `env` block:
 Run the full ContextPacker server locally — no API key needed:
 
 ```bash
-git clone https://github.com/contextpacker/contextpacker
+git clone https://github.com/rozetyp/contextpacker
 cd contextpacker
 pip install -r requirements.txt
 export LLM_API_KEY=your_gemini_or_openai_key
@@ -210,7 +210,7 @@ First call for a repo: 3–10s (clone + index). Subsequent calls: ~1s.
 ## Development
 
 ```bash
-git clone https://github.com/contextpacker/contextpacker-mcp
+git clone https://github.com/rozetyp/contextpacker-mcp
 cd contextpacker-mcp
 python -m venv .venv && source .venv/bin/activate
 pip install -e .
