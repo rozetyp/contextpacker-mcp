@@ -160,7 +160,7 @@ def get_skeleton(repo_url: str) -> str:
     Returns:
         Indented file tree as plain text, with AST symbols and doc hints inline.
     """
-    payload: dict = {"repo_url": repo_url, "query": ""}
+    payload: dict = {"repo_url": repo_url, "query": "repository overview"}
 
     vcs = _vcs_block()
     if vcs:
